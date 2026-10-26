@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Raid Wheel & Boss Battler - Draft & Battle Titans</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css?v=20261026_1">
+</head>
+<body>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="top-bar">
+      <div class="logo-badge">
+        <span>⚡</span> POKÉMON RAID WHEEL ARENA <span>🔴</span>
+      </div>
+      <div class="header-actions">
+        <button id="open-raid-btn" class="btn-header btn-raid-glow" title="Co-op & Solo Raid Boss Battles">
+          ⚔️ Raid Boss Arena
+        </button>
+        <button id="open-badges-btn" class="btn-header" title="View Unlocked Raid Badges">
+          🏆 Badges (<span id="unlocked-badge-count">0/5</span>)
+        </button>
+        <button id="btn-audio-toggle" class="btn-header" title="Toggle Sound FX">
+          🔊 Sound: ON
+        </button>
+        <button id="open-settings-btn" class="btn-header" title="Room & Budget Settings">
+          ⚙️ Settings
+        </button>
+        <button id="btn-reset-roster" class="btn-header" title="Reset Roster">
+          🔄 Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Arena -->
+  <main>
+    <div class="grid-arena">
+
+      <!-- COLUMN 1: THE POKÉMON SPIN WHEEL -->
+      <section class="arena-card wheel-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🎡</span> Poké-Wheel
+          </div>
+          <span class="card-badge" id="active-filter-badge">50 Pokémon</span>
+        </div>
+
+        <!-- Wheel Filter Tabs -->
+        <div class="wheel-controls">
+          <button class="btn-filter active" data-filter="all" type="button">All (50)</button>
+          <button class="btn-filter" data-filter="starter" type="button">Starters & Aces</button>
+          <button class="btn-filter" data-filter="mega" type="button">Mega Evolutions</button>
+          <button class="btn-filter" data-filter="legendary" type="button">Legendaries</button>
+          <button class="btn-filter" data-filter="mythical" type="button">Mythicals</button>
+        </div>
+
+        <!-- Wheel Canvas Container -->
+        <div class="wheel-canvas-wrapper">
+          <canvas id="spin-canvas"></canvas>
+        </div>
+
+        <!-- Spin Action Controls -->
+        <div class="spin-actions">
+          <button class="btn-spin-main" id="btn-spin" type="button">
+            ⚡ SPIN THE WHEEL! 🔴
+          </button>
+        </div>
+      </section>
+
+      <!-- COLUMN 2: ACTIVE ENCOUNTER POKÉDEX CARD -->
+      <section class="arena-card encounter-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📖</span> Encounter Details
+          </div>
+          <span class="card-badge">Wild Encounter</span>
+        </div>
+
+        <div class="encounter-wrapper">
+          <!-- Artwork Box -->
+          <div class="pokemon-artwork-box">
+            <span class="power-level-pill" id="poke-power-level">⚡ 100.0 PWR</span>
+            <img id="poke-artwork" class="pokemon-artwork" src="" alt="Encounter">
+          </div>
+
+          <!-- Name & Typings -->
+          <div class="pokemon-name-title">
+            <h2 class="pokemon-display-name" id="poke-name">Arceus</h2>
+            <div class="pokemon-display-subtitle" id="poke-subtitle">The Original One</div>
+            <div class="type-badges-row" id="poke-type-badges"></div>
+          </div>
+
+          <!-- Base Bid & Bounty Stats -->
+          <div class="stats-grid-row">
+            <div class="stat-box">
+              <span class="stat-label">Starting Catch Bid (&lt; 12k):</span>
+              <span class="stat-val" id="poke-base-bid">₹ 11,500</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Capture Bounty:</span>
+              <span class="stat-val" id="poke-bounty">₹ 6,500,000,000</span>
+            </div>
+          </div>
+
+          <!-- Techniques / Moveset (4 Moves) -->
+          <div class="techniques-section">
+            <div class="section-label">Signature Moveset:</div>
+            <div class="techniques-list" id="poke-techniques-list"></div>
+          </div>
+
+          <!-- Lore Quote -->
+          <div class="lore-quote-box" id="poke-lore">
+            "Born from an egg where there was nothing, it shaped the universe with its one thousand arms."
+          </div>
+        </div>
+      </section>
+
+      <!-- COLUMN 3: TRAINERS & BIDDING / DRAFTING ARENA -->
+      <section class="arena-card bidding-arena-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🎒</span> Trainer Podiums (Max 5)
+          </div>
+          <span class="card-badge">Host Only Discard</span>
+        </div>
+
+        <!-- Trainer Cards with 5 Pokeball Slots -->
+        <div class="trainers-podium-list" id="trainers-list"></div>
+
+        <!-- Bidding Arena Controls -->
+        <div class="card-header" style="margin-top: 10px;">
+          <div class="card-title">
+            <span>🔨</span> Catching Auction
+          </div>
+        </div>
+
+        <!-- Mode Navigation Tabs -->
+        <div class="bidding-mode-tabs">
+          <button class="bid-tab-btn active" data-mode="live" type="button">🔨 Live Bidding</button>
+          <button class="bid-tab-btn" data-mode="secret" type="button">🤫 Secret Blind</button>
+          <button class="bid-tab-btn" data-mode="direct" type="button">⚡ Direct Assign</button>
+        </div>
+
+        <!-- MODE 1: LIVE AUCTION -->
+        <div id="panel-live-bid">
+          <div class="bid-status-board">
+            <div>
+              <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Current High Bid:</span>
+              <div class="high-bid-number" id="live-high-bid">₹ 0</div>
+              <span style="font-size:0.8rem; color:var(--text-muted);" id="live-high-bidder">(No bids placed yet)</span>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Turn to Bid:</span>
+              <div style="font-weight:800; font-size:1.05rem;" id="live-turn-badge">Trainer 1</div>
+              <span style="font-size:0.8rem; color:var(--accent-yellow);" id="live-turn-purse">Purse: ₹ 1,50,000</span>
+            </div>
+          </div>
+
+          <!-- Quick Raise Grid -->
+          <div class="quick-raise-grid" style="margin-top: 10px;">
+            <button class="btn-raise" data-add="1000" type="button">+₹ 1,000</button>
+            <button class="btn-raise" data-add="2500" type="button">+₹ 2,500</button>
+            <button class="btn-raise" data-add="5000" type="button">+₹ 5,000</button>
+            <button class="btn-raise" data-add="10000" type="button">+₹ 10,000</button>
+          </div>
+
+          <!-- Custom Bid & Actions -->
+          <div class="bid-action-row" style="margin-top: 10px;">
+            <input type="number" id="custom-bid-input" class="bid-input" placeholder="Custom Bid (₹)..." step="1000" min="0">
+            <button class="btn-bid-submit" id="btn-submit-bid" type="button">Place Bid 💰</button>
+            <button class="btn-pass" id="btn-pass-turn" type="button">Pass ✋</button>
+            <button class="btn-discard" id="btn-discard-pokemon" type="button" title="Only Host has discard privilege">Discard 🗑️</button>
+          </div>
+
+          <!-- Auction Live Feed -->
+          <div class="auction-feed" id="auction-log-feed" style="margin-top: 10px;">
+            <div class="log-entry">Auction Arena Ready. Spin the Poké-Wheel to begin encounters!</div>
+          </div>
+        </div>
+
+        <!-- MODE 2: SECRET BLIND BID -->
+        <div id="panel-secret-bid" style="display: none;">
+          <div style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: var(--radius-sm);">
+            <div id="secret-current-trainer-label" style="font-weight:700; margin-bottom: 8px;">Trainer 1's Turn to Enter Bid</div>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" id="secret-bid-input" class="bid-input" placeholder="Enter secret bid (₹)...">
+              <button class="btn-bid-submit" id="btn-secret-submit" type="button">Submit Blind Bid 🤫</button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top: 6px;">Keep screen private! Once all trainers enter their bids, the highest bidder catches the Pokémon.</p>
+          </div>
+        </div>
+
+        <!-- MODE 3: DIRECT ASSIGN -->
+        <div id="panel-direct-bid" style="display: none;">
+          <div style="display:flex; gap: 8px; align-items:center;">
+            <select id="direct-trainer-select" class="bid-input" style="flex:2;"></select>
+            <button class="btn-bid-submit" id="btn-direct-assign" type="button" style="flex:1;">Assign at Base ⚡</button>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- POKÉBALL CATCH ANIMATION OVERLAY -->
+  <div id="catch-modal-overlay" class="catch-anim-overlay">
+    <div class="pokeball-anim-container">
+      <div id="catch-pokeball-sprite" class="pokeball-sprite pokeball-bounce"></div>
+    </div>
+    <div class="catch-headline" id="catch-headline-text">GOTCHA!</div>
+    <div class="catch-details" id="catch-details-text">Trainer 1 caught Pikachu!</div>
+  </div>
+
+  <!-- RAID BOSS ARENA MODAL (EPIC CO-OP & SOLO COMBAT) -->
+  <dialog id="raid-boss-dialog" class="raid-dialog">
+    <div class="raid-container">
+      <div class="raid-header">
+        <div>
+          <h2 style="font-size:1.4rem; font-weight:900; color:var(--accent-red);">⚔️ RAID BOSS BATTLE ARENA</h2>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Take on legendary bosses with your drafted 5-Pokémon squad! Type matchups matter!</span>
+        </div>
+        <button id="btn-close-raid" class="btn-header">✕ Close</button>
+      </div>
+
+      <!-- Boss Selector -->
+      <div class="raid-boss-selector">
+        <button class="boss-select-btn active" data-boss="boss_1" type="button">Tier 1: Mewtwo</button>
+        <button class="boss-select-btn" data-boss="boss_2" type="button">Tier 2: Primal Titans</button>
+        <button class="boss-select-btn" data-boss="boss_3" type="button">Tier 3: Mega Rayquaza</button>
+        <button class="boss-select-btn" data-boss="boss_4" type="button">Tier 4: Ultra Necrozma</button>
+        <button class="boss-select-btn" data-boss="boss_5" type="button">Tier 5: Supreme Arceus</button>
+      </div>
+
+      <!-- Battlefield Area -->
+      <div class="raid-battlefield" style="position:relative;">
+        <!-- Floating Combat Damage Layer -->
+        <div id="floating-combat-layer" class="floating-dmg-container"></div>
+
+        <!-- Boss Card -->
+        <div class="boss-battle-card" id="boss-card-element">
+          <div class="boss-phase-badge" id="raid-boss-phase-badge">Phase 1: Active</div>
+          <img id="raid-boss-img" class="boss-battle-artwork" src="" alt="Boss">
+          <div style="text-align:center;">
+            <h3 id="raid-boss-name" style="font-size:1.25rem; font-weight:800;">Mewtwo</h3>
+            <div id="raid-boss-title" style="font-size:0.8rem; color:var(--text-muted);">Awakened Genetic Sovereign</div>
+            <div id="raid-boss-types" style="font-size:0.75rem; color:var(--accent-yellow); font-weight:700; margin-top:2px;">Psychic</div>
+          </div>
+          <div class="boss-hp-container">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700;">
+              <span>Raid Boss Health</span>
+              <span id="raid-boss-hp-val">180,000 / 180,000 HP</span>
+            </div>
+            <div class="boss-hp-bar">
+              <div id="raid-boss-hp-fill" class="boss-hp-fill"></div>
+            </div>
+          </div>
+          <div id="raid-boss-difficulty" style="font-size:0.75rem; color:#fca5a5;">Tier 1 - Standard Raid</div>
+        </div>
+
+        <!-- Squad View & Controls -->
+        <div class="squad-view-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.9rem; font-weight:700;">Select Battling Squad:</span>
+            <select id="raid-squad-trainer-select" class="bid-input" style="padding:4px 8px; font-size:0.8rem;"></select>
+          </div>
+          
+          <!-- Squad Members List -->
+          <div class="squad-pokemon-list" id="raid-squad-list"></div>
+
+          <!-- Interactive Moves Selector for Active Pokémon -->
+          <div class="squad-move-selector" id="squad-move-selector-box" style="display:none;">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+              <span>SELECT SIGNATURE MOVE: <b id="active-move-attacker" style="color:#fff;">Charizard</b></span>
+              <span id="tera-status-tag" style="color:#c084fc;">Tera Boost Ready ✨</span>
+            </div>
+            <div class="move-buttons-grid" id="move-buttons-container"></div>
+          </div>
+          
+          <!-- Combat Feed -->
+          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-top:4px;">Combat Feed:</div>
+          <div class="raid-combat-log" id="raid-combat-feed"></div>
+
+          <!-- Controls -->
+          <div class="raid-controls-bar">
+            <button id="btn-tera-burst" class="btn-tera-burst" type="button" title="Once per battle 2.5x Apocalyptic Tera Damage">
+              ✨ TERA BURST (2.5x)
+            </button>
+            <button id="btn-raid-auto" class="btn-header" type="button">⚡ Auto Battle</button>
+            <button id="btn-raid-attack" class="btn-raid-attack" type="button">🔥 SQUAD ASSAULT! 💥</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </dialog>
+
+  <!-- BADGE CASE MODAL -->
+  <dialog id="badge-case-dialog" class="settings-dialog" style="max-width: 600px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="font-size:1.25rem; font-weight:900; color:var(--accent-yellow);">🏆 RAID BOSS BADGE CASE</h3>
+      <button id="btn-close-badges" class="btn-header">✕ Close</button>
+    </div>
+    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Vanquish legendary raid bosses to unlock exclusive champion badges!</p>
+    
+    <div class="badge-case-grid" id="badge-case-list">
+      <!-- Generated via JS -->
+    </div>
+  </dialog>
+
+  <!-- POKÉMON DETAIL / SUMMARY MODAL -->
+  <dialog id="poke-summary-dialog" class="settings-dialog" style="max-width: 480px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 id="summary-poke-name" style="font-size:1.25rem; font-weight:800;">Charizard</h3>
+      <button id="btn-close-summary" class="btn-header">✕ Close</button>
+    </div>
+    <div style="text-align:center; margin: 12px 0;">
+      <img id="summary-poke-img" src="" alt="Pokemon" style="width:130px; height:130px; object-fit:contain;">
+      <div id="summary-poke-title" style="font-size:0.85rem; color:var(--text-muted);">Flame Dragon</div>
+      <div id="summary-poke-types" class="type-badges-row" style="margin-top:6px;"></div>
+    </div>
+    <div class="stats-grid-row" style="margin-bottom:12px;">
+      <div class="stat-box">
+        <span class="stat-label">Power Level / BST:</span>
+        <span class="stat-val" id="summary-poke-pwr">⚡ 97.2 PWR</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Acquired Bid:</span>
+        <span class="stat-val" id="summary-poke-cost">₹ 10,400</span>
+      </div>
+    </div>
+    <div class="techniques-section">
+      <div class="section-label">Equipped Moveset:</div>
+      <div class="techniques-list" id="summary-poke-moves"></div>
+    </div>
+    <div class="lore-quote-box" id="summary-poke-lore" style="margin-top:12px;"></div>
+  </dialog>
+
+  <!-- ROOM & BUDGET SETTINGS MODAL -->
+  <dialog id="settings-dialog" class="settings-dialog">
+    <h3 style="font-size:1.15rem; font-weight:800;">⚙️ Game & Room Settings</h3>
+    <div class="settings-group">
+      <div class="setting-item">
+        <label for="setting-trainers">Number of Trainers (2 - 8):</label>
+        <select id="setting-trainers">
+          <option value="2">2 Trainers</option>
+          <option value="3">3 Trainers</option>
+          <option value="4">4 Trainers</option>
+          <option value="6">6 Trainers</option>
+          <option value="8">8 Trainers</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label for="setting-purse">Starting Purse (₹ 1 Lakh - 2 Lakhs):</label>
+        <select id="setting-purse">
+          <option value="100000">₹ 1,00,000 (1 Lakh - Low Budget)</option>
+          <option value="125000">₹ 1,25,000 (1.25 Lakhs)</option>
+          <option value="150000" selected>₹ 1,50,000 (1.5 Lakhs - Standard)</option>
+          <option value="175000">₹ 1,75,000 (1.75 Lakhs)</option>
+          <option value="200000">₹ 2,00,000 (2 Lakhs - High Budget)</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label>Party Capacity:</label>
+        <span style="font-weight:800; color:var(--accent-yellow);">Max 5 Pokémon (Strict)</span>
+      </div>
+      <div class="setting-item">
+        <label>Starting Base Bids:</label>
+        <span style="font-weight:800; color:var(--accent-yellow);">&lt; ₹ 12,000 (Based on Power)</span>
+      </div>
+      <div class="setting-item">
+        <label>Discard Privilege:</label>
+        <span style="font-weight:800; color:var(--accent-red);">Host (Player 1) Only</span>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button id="btn-close-settings" class="btn-header">Cancel</button>
+      <button id="btn-save-settings" class="btn-bid-submit">Save Settings</button>
+    </div>
+  </dialog>
+
+  <footer>
+    <p>Pokémon and Pokémon character names, moves, and concepts &copy; Nintendo, Creatures Inc., Game Freak, TV Tokyo, ShoPro, The Pokémon Company.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="pokemon-data.js?v=20261026_2"></script>
+  <script src="raid-bosses.js?v=20261026_2"></script>
+  <script src="wheel.js?v=20261026_2"></script>
+  <script src="app.js?v=20261026_2"></script>
+</body>
+</html>
